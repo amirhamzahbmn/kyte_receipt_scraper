@@ -4,12 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import ElementNotInteractableException
-
 import time
-import csv
 
 import os
 
@@ -27,7 +23,7 @@ downloaded_files = dir_list
 # Chrome options
 
 chrome_options = Options()
-#Cookies
+#Cookies for profile so no login is needed.
 chrome_options.add_argument("--user-data-dir=/home/tooshy/.config/google-chrome")
 chrome_options.add_argument('--profile-directory=Profile 2')
 #Enable when need to check source code
@@ -45,6 +41,7 @@ sales = downloaded_files
 failed_sales = []
 
 def get_receipt():
+    '''Checks first if the receipt has already been downloaded by checking it in "sales", skips if so. Downloads the receipt by clicking.'''
     global sale_count
     rows = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'table_table-row__14CWi')))
 
@@ -83,6 +80,7 @@ def get_receipt():
                 continue
 
 def filter(period, date):
+    '''Sets the last date of the latest downloaded receipt and sets it to the beginning of the filtering date range until the end.'''
     try:
         last_date_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, f"input[placeholder='{period}']")))
     except:
@@ -115,6 +113,7 @@ def filter(period, date):
         if active == False:
             break
 
+# As dates of receipts are in word form, these are converted to numbers for the input in the filter mechanism above.
 month_converter = {
                     "January":"01",
                     "February":"02",
@@ -130,11 +129,14 @@ month_converter = {
                     "December":"12",
                   }
 
+#Inits driver to sales page instantly. Make sure that the correct profile is being used so no login is needed.
 driver.get('https://kyteweb.com/sales')
 
 time.sleep(7)
 
+#Date of first receipt
 start_date = '01/01/21'
+#Date of starting download receipt, can be set prematurely so no additional filtering is needed to get to the needed target starting receipt.
 end_date = '11/11/21'
 print(f"Starting from {end_date}.")
 filter_open = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div[data-testid='sale-filter-button']")))
@@ -170,7 +172,8 @@ while sale_count != total_sales:
             time.sleep(1)
         else:
             break
-
+    
+    #Scrolls by clicking page_down and then grabs all the receipts that haven't been downloaded.
     print("\nScrolling..")
     body.send_keys(Keys.PAGE_DOWN)
     time.sleep(0.5)
@@ -181,6 +184,7 @@ while sale_count != total_sales:
 
     get_receipt()
 
+    #Starts filtering once 25 scrolls has been met. Can be set higher if you have a better system and you would like to cut time.
     if scroll_count == 25:
         filter_start_date = start_date[:6] + '20' + start_date[-2:]
         time.sleep(1)
