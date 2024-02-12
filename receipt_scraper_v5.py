@@ -11,7 +11,7 @@ import os
 
 # Check for already downloaded files
 print("Checking for files already downloaded..")
-download_path = "/home/tooshy/Downloads/receipts"
+download_path = r"C:\Users\tooshy\Documents\kyte_receipts"
 dir_list = os.listdir(download_path)
 
 for pdf in range(len(dir_list)):
@@ -24,8 +24,8 @@ downloaded_files = dir_list
 
 chrome_options = Options()
 #Cookies for profile so no login is needed.
-chrome_options.add_argument("--user-data-dir=/home/tooshy/.config/google-chrome")
-chrome_options.add_argument('--profile-directory=Profile 2')
+chrome_options.add_argument(r"--user-data-dir=C:\Users\tooshy\AppData\Local\Google\Chrome\User Data")
+chrome_options.add_argument('--profile-directory=Default')
 #Enable when need to check source code
 chrome_options.add_experimental_option("detach", True)
 # chrome_options.add_argument("--headless=new")
@@ -135,9 +135,9 @@ driver.get('https://kyteweb.com/sales')
 time.sleep(7)
 
 #Date of first receipt
-start_date = '01/01/21'
+start_date = '13/05/23'
 #Date of starting download receipt, can be set prematurely so no additional filtering is needed to get to the needed target starting receipt.
-end_date = '11/11/21'
+end_date = '30/09/23'
 print(f"Starting from {end_date}.")
 filter_open = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div[data-testid='sale-filter-button']")))
 filter_open.click()
