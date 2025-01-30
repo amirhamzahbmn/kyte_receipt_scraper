@@ -1,8 +1,9 @@
 from playwright.sync_api import sync_playwright, Playwright
 import time
 import os
+import re
 
-def run(playwright: Playwright):
+def run(playwright: Playwright, downloaded_files):
     pass
     start_url = "https://web.kyteapp.com/sales"
 
@@ -14,8 +15,17 @@ def run(playwright: Playwright):
     page = browser.new_page()
     page.goto(start_url)
 
-    for x in range(10):
+    for x in range(00):
         sale_row = page.get_by_test_id(f"sale-row-sale-{x}")
+        receipt_no = page.get_by_text(re.compile("#", re.IGNORECASE))
+
+        # sale_row.locator(receipt_no)
+
+        receipt_no = sale_row.locator(receipt_no).inner_text()
+        
+        if receipt_no in downloaded_files:
+            continue
+
         receipt_button = page.get_by_test_id('sale-receipt-button-sale')
 
         sale_row.locator(receipt_button).click()
@@ -33,5 +43,17 @@ def run(playwright: Playwright):
 
     time.sleep(2)
 
+print("Checking for files already downloaded..")
+download_path = r"./receipts"
+dir_list = os.listdir(download_path)
+print(f"Found {len(dir_list)} files.")
+
+for pdf in range(len(dir_list)):
+    dir_list[pdf] = dir_list[pdf].rstrip('.pdf')
+    dir_list[pdf] = dir_list[pdf].lstrip('receipt-')
+
+downloaded_files = dir_list
+# print(downloaded_files)
+
 with sync_playwright() as playwright:
-    run(playwright)
+    run(playwright, downloaded_files)
